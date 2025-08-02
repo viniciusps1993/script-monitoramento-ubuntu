@@ -29,11 +29,19 @@ function monitorar_disco() {
     du -sh /home/vinicius_souza >> $LOG_DIR/monitoramento_disco.txt
 }
 
+function monitorar_hardware() {
+    echo "$(date)" >> $LOG_DIR/monitoramento_hardware.txt
+    free -h | grep Mem | awk '{print "Memoria RAM Total: " $2 ", Usada: " $3 ", Livre: " $4}' >> $LOG_DIR/monitoramento_hardware.txt
+    top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print "Uso da CPU: " 100 - $1 "%"}' >> $LOG_DIR/monitoramento_hardware.txt
+    echo "Operacoes de leitura e escrita:" >> $LOG_DIR/monitoramento_hardware.txt
+    iostat | grep -E "Device|^sda|^sdb|^sdc" | awk '{print $1, $2, $3, $4}' >> $LOG_DIR/monitoramento_hardware.txt
+}
 
 function executar_monitoramento() {
-        monitorar_logs
-        monitorar_rede
-        monitorar_disco
+    monitorar_logs
+    monitorar_rede
+    monitorar_disco
+    monitorar_hardware
 }
 
 executar_monitoramento
